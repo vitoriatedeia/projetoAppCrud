@@ -96,6 +96,8 @@ app.post("/auth/login", async (req, res) => {
   try {
     const { email, senha } = req.body;
 
+    console.log(email, senha)
+
     const [rows] = await pool.query("SELECT * FROM users WHERE email = ?", [
       email,
     ]);
@@ -156,6 +158,26 @@ app.put("/auth/update", autenticarToken, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Erro ao atualizar usuário!" })
+  }
+})
+
+// Rota: DELETAR
+app.delete("/auth/delete", autenticarToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [req.user.id])
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado." })
+    }
+
+    await pool.query(
+      "DELETE FROM users WHERE id = ?", [req.user.id]
+    )
+    res.json({ message: "Usuário deletado com sucesso!" })
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Erro ao deletar usuário!" })
   }
 })
 
